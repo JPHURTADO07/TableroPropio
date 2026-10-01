@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_drawable_canvas import st_canvas
 
-# 1. Configuración de la página (opcional, pero recomendada)
+# 1. Configuración de la página
 st.set_page_config(page_title="Tablero de Dibujo", layout="wide")
 
 st.title("Tablero para dibujo")
@@ -26,6 +26,7 @@ with st.sidebar:
     bg_color = st.color_picker("Color de fondo", "#000000")
 
 # 2. Creación del componente con una 'key' ESTÁTICA
+# Esto evita que el lienzo se borre al cambiar las dimensiones en el menú lateral
 canvas_result = st_canvas(
     fill_color="rgba(255, 165, 0, 0.3)",
     stroke_width=stroke_width,
@@ -34,12 +35,22 @@ canvas_result = st_canvas(
     height=canvas_height,
     width=canvas_width,
     drawing_mode=drawing_mode,
-    key="my_canvas", # Modificado: key estática para evitar perder el dibujo al redimensionar
+    key="my_canvas", 
 )
 
-# 3. Mostrar o utilizar el resultado del dibujo
-if canvas_result.image_data is not None:
-    st.markdown("---")
-    st.subheader("Previsualización de la Imagen Generada")
-    # Muestra el array de NumPy devuelto por el lienzo como una imagen
-    st.image(canvas_result.image_data)
+# 3. Mostrar o utilizar el resultado del dibujo de forma segura
+if canvas_result is not None:
+    try:
+        # Intenta acceder a la imagen. 
+        # Si el componente de React aún no ha devuelto los datos (primer render), 
+        # se capturará el RuntimeError.
+        if canvas_result.image_data is not None:
+            st.markdown("---")
+            st.subheader("Previsualización de la Imagen Generada")
+            # Muestra el array de NumPy devuelto por el lienzo como una imagen
+            st.image(canvas_result.image_data)
+            
+    except RuntimeError:
+        # Ignoramos el error silenciosamente para que la app termine 
+        # de cargar correctamente. 
+        pass
