@@ -1,0 +1,45 @@
+import streamlit as st
+from streamlit_drawable_canvas import st_canvas
+
+# 1. Configuración de la página (opcional, pero recomendada)
+st.set_page_config(page_title="Tablero de Dibujo", layout="wide")
+
+st.title("Tablero para dibujo")
+
+with st.sidebar:
+    st.subheader("Propiedades del Tablero")
+
+    # Dimensiones del tablero
+    st.subheader("Dimensiones del Tablero")
+    canvas_width = st.slider("Ancho del tablero", 300, 700, 500, 50)
+    canvas_height = st.slider("Alto del tablero", 200, 600, 300, 50)
+
+    # Selector de modo de dibujo
+    drawing_mode = st.selectbox(
+        "Herramienta de Dibujo:",
+        ("freedraw", "line", "rect", "circle", "transform", "polygon", "point"),
+    )
+
+    # Controles de trazo y color
+    stroke_width = st.slider("Selecciona el ancho de línea", 1, 30, 15)
+    stroke_color = st.color_picker("Color de trazo", "#FFFFFF")
+    bg_color = st.color_picker("Color de fondo", "#000000")
+
+# 2. Creación del componente con una 'key' ESTÁTICA
+canvas_result = st_canvas(
+    fill_color="rgba(255, 165, 0, 0.3)",
+    stroke_width=stroke_width,
+    stroke_color=stroke_color,
+    background_color=bg_color,
+    height=canvas_height,
+    width=canvas_width,
+    drawing_mode=drawing_mode,
+    key="my_canvas", # Modificado: key estática para evitar perder el dibujo al redimensionar
+)
+
+# 3. Mostrar o utilizar el resultado del dibujo
+if canvas_result.image_data is not None:
+    st.markdown("---")
+    st.subheader("Previsualización de la Imagen Generada")
+    # Muestra el array de NumPy devuelto por el lienzo como una imagen
+    st.image(canvas_result.image_data)
